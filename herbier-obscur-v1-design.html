@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#07100b">
+<title>Herbier Obscur — Encyclopédie botanique</title>
+<style>
+:root{--ink:#f4f4ef;--muted:#b6c0b6;--green:#c7e2c4;--line:#ffffff35;--glass:#07110bd9}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#050806;color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}
+#home{min-height:100svh;position:relative;display:flex;flex-direction:column;padding:16px;overflow:hidden;background:
+linear-gradient(90deg,rgba(0,12,6,.76),rgba(0,12,6,.40)),linear-gradient(0deg,rgba(0,0,0,.42),transparent 50%),
+url('https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=2200&q=88') center/cover}
+#home:after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 5%,#0005 100%);pointer-events:none}
+.nav{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #ffffff45;background:#06110b72;backdrop-filter:blur(14px);border-radius:40px;padding:6px}
+.navgroup{display:flex;gap:5px;align-items:center}.nav button{border:1px solid transparent;background:transparent;color:#f5f5f0;border-radius:30px;padding:10px 15px;font-size:.8rem}
+.nav button.active{background:#f2f4ed;color:#152018}.nav .brand{font-family:Georgia,serif;font-size:1rem;letter-spacing:.08em;padding-left:17px}
+.hero{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:70px 12px 100px}
+.hero small{font-weight:700;font-size:.95rem;text-shadow:0 2px 12px #000}.hero h1{font-size:clamp(3.4rem,12vw,8.4rem);line-height:.92;letter-spacing:-.065em;margin:7px 0 18px;font-weight:800;text-shadow:0 3px 25px #0008}
+.hero p{max-width:510px;color:#e0e8df;font-size:clamp(.82rem,2.4vw,1rem);line-height:1.65;margin:0 auto 25px;text-shadow:0 2px 10px #000}
+.hero-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.pill{border:1px solid #ffffff85;border-radius:30px;padding:12px 20px;background:#f2f4ed;color:#142017;font-weight:700}.pill.ghost{background:#06110b66;color:white}
+.hint{position:absolute;bottom:24px;left:0;right:0;text-align:center;color:#d0d9d0;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;z-index:1}
+#catalogue{display:none;min-height:100svh;padding:24px 16px 50px;background:radial-gradient(ellipse at top,#1d3826,#080d09 65%)}
+.wrap{width:min(1100px,100%);margin:auto}.section-head{display:flex;justify-content:space-between;align-items:end;gap:15px;margin:12px 0 22px}.eyebrow{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:#b8d9b3;font-weight:800}.section-head h2{font:clamp(2rem,7vw,3.3rem)/1 Georgia,serif;margin:8px 0}.section-head p{color:var(--muted);max-width:520px;margin:0;font-size:.9rem}
+.searchbar{display:grid;grid-template-columns:1fr;gap:9px;margin-bottom:18px}.searchbar input,.searchbar select{width:100%;padding:13px 15px;border:1px solid #ffffff35;border-radius:12px;background:#101a13;color:white}
+.catalogue-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.catalogue-actions button{border:1px solid #ffffff44;border-radius:30px;padding:11px 16px;background:#e0eddb;color:#122016;font-weight:700}.catalogue-actions button.secondary{background:#142319;color:white}
+#status{color:#c0cbbf;font-size:.85rem;margin:10px 0 18px}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.plant-card{border:1px solid #ffffff2b;background:#111d15;border-radius:15px;padding:16px;text-align:left;color:white;min-height:125px;transition:.2s}.plant-card:hover{border-color:#b7d8b0;transform:translateY(-2px)}.plant-card .latin{font:italic 1.2rem Georgia,serif;color:#d9ebd4}.plant-card .meta{font-size:.78rem;color:#aab8aa;margin-top:9px}.tag{display:inline-block;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;border:1px solid #668267;border-radius:20px;padding:4px 8px;color:#c7e2c4;margin-bottom:8px}
+.pager{display:flex;justify-content:center;align-items:center;gap:12px;margin:22px 0;color:#d0d9d0;font-size:.85rem}.pager button{border:1px solid #ffffff44;border-radius:30px;padding:9px 14px;background:#1c3022;color:white}.pager button:disabled{opacity:.35}
+#detail{display:none;min-height:100svh;background:#030403;padding:14px}.detail-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:1500px;margin:0 auto;padding:12px 2px 20px}.detail-nav .wordmark{font:1rem Georgia,serif;letter-spacing:.08em}.detail-nav button{background:transparent;border:1px solid #ffffff42;border-radius:30px;color:white;padding:9px 14px}
+.detail-layout{width:min(1450px,100%);margin:auto;min-height:calc(100svh - 75px);display:grid;grid-template-columns:1fr;gap:15px;align-items:center}
+.detail-left{order:2;padding:12px 4px}.detail-center{order:1;position:relative;min-height:300px;height:42vh;max-height:570px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.detail-center img{width:100%;height:100%;object-fit:contain;position:relative;z-index:1}
+.image-fallback{position:absolute;inset:0;background:radial-gradient(ellipse,#34583b,#07100a 68%);display:grid;place-items:center;color:#b9d8b4;font:italic 2rem Georgia,serif}
+.detail-right{order:3;padding:12px 4px}.family-label{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:#b5d6ae}.detail-left h2{font:clamp(2.5rem,10vw,5rem)/.98 Georgia,serif;font-weight:400;margin:12px 0}.detail-left .desc{color:#c4cbc3;line-height:1.7;font-size:.92rem;max-width:420px}
+.facts{display:flex;gap:26px;flex-wrap:wrap;margin-top:28px}.fact b{display:block;font-size:.72rem;color:#c6d7c3}.fact span{display:block;font-size:.8rem;color:#9da99d;margin-top:4px}
+.detail-right h3{font:1.1rem Georgia,serif;margin:10px 0}.detail-right p{color:#aeb8ae;font-size:.84rem;line-height:1.65}.gallery{display:grid;grid-template-columns:1fr 1fr;gap:7px;height:90px}.gallery img{width:100%;height:100%;object-fit:cover;border-radius:3px;background:#17251b}
+.detail-link{display:block;text-align:center;padding:12px;border:1px solid #ffffff3c;background:#1a1c1a;color:white;text-decoration:none;font-size:.8rem;margin-top:18px}
+.detail-bottom{display:flex;justify-content:space-between;gap:10px;color:#aeb8ae;font-size:.75rem;margin-top:35px}.detail-bottom button{background:none;border:0;color:#d9ead5}
+@media(min-width:850px){#home{padding:22px 28px}.detail-layout{grid-template-columns:minmax(210px,.85fr) minmax(350px,1.5fr) minmax(210px,.8fr);gap:28px}.detail-left,.detail-center,.detail-right{order:initial}.detail-center{height:75vh;max-height:780px}.detail-left{padding:20px 0}.detail-right{padding:20px 0}.detail-left h2{font-size:clamp(3rem,5vw,5.5rem)}.searchbar{grid-template-columns:2fr 1fr}.hero{padding-bottom:100px}}
+@media(max-width:430px){.nav{padding:5px}.nav button{padding:9px 10px;font-size:.72rem}.nav .brand{padding-left:10px}.hero{padding-top:45px}.hero h1{font-size:3.5rem}.detail-nav{padding-bottom:12px}}
+</style></head>
+<body>
+<section id="home">
+ <nav class="nav">
+  <div class="navgroup"><span class="brand">HERBIER OBSCUR</span></div>
+  <div class="navgroup"><button class="active" id="homeTab">Accueil</button><button id="menuTab">Catalogue</button><button id="aboutTab">À propos</button></div>
+ </nav>
+ <div class="hero">
+  <small>La nature a ses secrets</small>
+  <h1>botanique<br>obscure.</h1>
+  <p>Explore les plantes du monde, leurs origines, leurs familles et leurs particularités. Une encyclopédie pour observer, comprendre et apprendre avec prudence.</p>
+  <div class="hero-actions"><button class="pill" id="explore">Explorer le catalogue</button><button class="pill ghost" id="aboutButton">À propos du projet</button></div>
+ </div>
+ <div class="hint">Un monde végétal à découvrir · Défilement libre</div>
+</section>
+
+<section id="catalogue">
+ <div class="wrap">
+  <div class="section-head"><div><div class="eyebrow">Bibliothèque végétale · Édition V1</div><h2>Le catalogue</h2><p>Recherche parmi jusqu’à 2 000 noms d’espèces végétales acceptés issus du référentiel GBIF.</p></div><button class="pill ghost" id="backHome">← Accueil</button></div>
+  <div class="searchbar"><input id="search" type="search" placeholder="Rechercher une plante, un genre, une famille…"><select id="family"><option value="">Toutes les familles</option></select></div>
+  <div class="catalogue-actions"><button id="load">Charger les 2 000 espèces</button><button class="secondary" id="reset">Effacer les filtres</button></div>
+  <div id="status">Le catalogue est prêt. Une connexion Internet est nécessaire pour charger les données.</div>
+  <div class="pager"><button id="prev" disabled>← Précédent</button><span id="page">Page 1</span><button id="next" disabled>Suivant →</button></div>
+  <div id="cards" class="cards"></div>
+  <div class="pager"><button id="prev2" disabled>← Précédent</button><span id="page2">Page 1</span><button id="next2" disabled>Suivant →</button></div>
+ </div>
+</section>
+
+<section id="detail">
+ <div class="detail-nav"><button id="backCatalog">← Catalogue</button><span class="wordmark">HERBIER OBSCUR</span><span style="font-size:.72rem;color:#aeb8ae">FICHE BOTANIQUE</span></div>
+ <div class="detail-layout">
+  <div class="detail-left">
+   <div class="family-label" id="dFamily">Famille botanique</div>
+   <h2 id="dName">Nom de la plante</h2>
+   <p class="desc" id="dDesc">Découvre les informations botaniques disponibles pour cette plante.</p>
+   <div class="facts"><div class="fact"><b>GENRE</b><span id="dGenus">—</span></div><div class="fact"><b>FAMILLE</b><span id="dFamily2">—</span></div><div class="fact"><b>ORDRE</b><span id="dOrder">—</span></div></div>
+  </div>
+  <div class="detail-center"><div class="image-fallback" id="fallback">Herbier Obscur</div><img id="mainImage" alt="Illustration botanique de la plante" style="display:none"></div>
+  <aside class="detail-right">
+   <div class="gallery"><img id="thumb1" alt="Photographie botanique" style="display:none"><img id="thumb2" alt="Photographie botanique" style="display:none"></div>
+   <h3>À propos de cette plante</h3><p id="dAbout">Les informations de classification proviennent du référentiel taxonomique GBIF. Les propriétés et usages ne sont pas déduits du seul nom scientifique.</p>
+   <p id="dAuthor"></p>
+   <a class="detail-link" id="gbifLink" href="#" target="_blank" rel="noopener">Consulter la fiche scientifique ↗</a>
+   <div class="detail-bottom"><span>HERBIER OBSCUR</span><span>Nom scientifique vérifié par GBIF</span></div>
+  </aside>
+ </div>
+</section>
+<script>
+(()=> {
+ const API='https://api.gbif.org/v1/species/search',PLANT_KEY=7707728,LIMIT=1000,TARGET=2000,SIZE=30;
+ let data=[],page=1,loaded=false,current=null;
+ const $=id=>document.getElementById(id);
+ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ function show(which){['home','catalogue','detail'].forEach(id=>$(id).style.display=id===which?(id==='home'?'flex':'block'):'none');window.scrollTo(0,0)}
+ function about(){alert('Herbier Obscur est une encyclopédie botanique en construction. Son objectif est de présenter les plantes, leur classification et des informations sourcées, avec une attention particulière à la sécurité.')}
+ async function getChunk(offset){let u=new URL(API);u.search=new URLSearchParams({rank:'SPECIES',highertaxon_key:String(PLANT_KEY),status:'ACCEPTED',limit:String(LIMIT),offset:String(offset)});let r=await fetch(u);if(!r.ok)throw Error('GBIF '+r.status);return r.json()}
+ async function load(){if(loaded)return;$('load').disabled=true;$('status').textContent='Chargement des 1 000 premières fiches…';data=[];try{let a=await getChunk(0);data.push(...(a.results||[]));$('status').textContent='Premier groupe reçu. Chargement des 1 000 suivantes…';let b=await getChunk(1000);data.push(...(b.results||[]));let unique=new Map();data.forEach(x=>{if(x.key!=null)unique.set(x.key,x)});data=[...unique.values()].slice(0,TARGET);loaded=true;let fam=[...new Set(data.map(x=>x.family).filter(Boolean))].sort();$('family').innerHTML='<option value="">Toutes les familles</option>'+fam.map(f=>`<option value="${esc(f)}">${esc(f)}</option>`).join('');page=1;render();$('status').textContent=`${data.length.toLocaleString('fr-FR')} enregistrements chargés depuis GBIF.`}catch(e){$('status').textContent='Chargement impossible : '+e.message+'. Vérifie ta connexion et réessaie.'}finally{$('load').disabled=false}}
+ function filtered(){let q=$('search').value.trim().toLowerCase(),f=$('family').value;return data.filter(x=>[x.scientificName,x.canonicalName,x.genus,x.family,x.order].join(' ').toLowerCase().includes(q)&&(!f||x.family===f))}
+ function render(){let all=filtered(),pages=Math.max(1,Math.ceil(all.length/SIZE));page=Math.max(1,Math.min(page,pages));let list=all.slice((page-1)*SIZE,page*SIZE);$('cards').innerHTML=list.length?list.map(x=>`<button class="plant-card" data-key="${x.key}"><span class="tag">${esc(x.family||'Famille non renseignée')}</span><div class="latin">${esc(x.canonicalName||x.scientificName||'Nom indisponible')}</div><div class="meta">${esc(x.genus||'Genre non renseigné')} · ${esc(x.taxonomicStatus||'Statut non précisé')}</div></button>`).join(''):'<p style="color:#bdc9bd">Aucun résultat. Charge le catalogue ou modifie ta recherche.</p>';$('page').textContent=$('page2').textContent=`Page ${page}/${pages} · ${all.length} résultat(s)`;['prev','prev2'].forEach(id=>$(id).disabled=page<=1);['next','next2'].forEach(id=>$(id).disabled=page>=pages);$('cards').querySelectorAll('[data-key]').forEach(b=>b.addEventListener('click',()=>openPlant(Number(b.dataset.key))))}
+ async function openPlant(key){current=data.find(x=>x.key===key);if(!current)return;show('detail');let x=current,name=x.canonicalName||x.scientificName||'Plante';$('dName').textContent=name;$('dFamily').textContent=x.family||'Famille non renseignée';$('dFamily2').textContent=x.family||'—';$('dGenus').textContent=x.genus||'—';$('dOrder').textContent=x.order||'—';$('dAuthor').textContent=x.authorship||'';$('dDesc').textContent=`${name} est référencée dans GBIF comme taxon accepté de rang ${x.rank||'espèce'}. Cette fiche présente les éléments de classification actuellement disponibles.`;$('dAbout').textContent='Les données affichées décrivent son identité et sa classification taxonomique. Elles ne suffisent pas à confirmer ses propriétés médicinales, alimentaires ou toxiques.';$('gbifLink').href=`https://www.gbif.org/species/${key}`;$('mainImage').style.display='none';$('thumb1').style.display='none';$('thumb2').style.display='none';$('fallback').style.display='grid';$('fallback').textContent=name;$('dAbout').textContent='Recherche de photographies d’observation disponibles dans GBIF…';try{let u=new URL('https://api.gbif.org/v1/occurrence/search');u.search=new URLSearchParams({taxonKey:String(key),mediaType:'StillImage',limit:'5'});let r=await fetch(u);let j=await r.json();let imgs=[];(j.results||[]).forEach(o=>(o.media||[]).forEach(m=>{if(m.identifier&&m.type==='StillImage')imgs.push({url:m.identifier,creator:m.creator||'',license:m.license||''})}));if(imgs.length){$('mainImage').src=imgs[0].url;$('mainImage').style.display='block';$('fallback').style.display='none';if(imgs[1]){$('thumb1').src=imgs[1].url;$('thumb1').style.display='block'}if(imgs[2]){$('thumb2').src=imgs[2].url;$('thumb2').style.display='block'}$('dAbout').textContent='Photographie issue d’une observation publiée dans GBIF. Les images peuvent représenter une observation particulière et leur qualité varie selon la source.';$('dAuthor').textContent=[imgs[0].creator,imgs[0].license?'Licence : '+imgs[0].license:''].filter(Boolean).join(' · ')}else{$('dAbout').textContent='Aucune photographie n’a été trouvée dans les observations GBIF consultées. La fiche de classification reste disponible.'}}catch(e){$('dAbout').textContent='La photographie n’a pas pu être chargée. La classification et la fiche GBIF restent consultables.'}}
+ $('homeTab').onclick=()=>show('home');$('menuTab').onclick=()=>show('catalogue');$('aboutTab').onclick=about;$('explore').onclick=()=>show('catalogue');$('aboutButton').onclick=about;$('backHome').onclick=()=>show('home');$('backCatalog').onclick=()=>show('catalogue');
+ $('load').onclick=load;$('search').oninput=()=>{page=1;render()};$('family').onchange=()=>{page=1;render()};$('reset').onclick=()=>{$('search').value='';$('family').value='';page=1;render()};
+ function move(d){page+=d;render();window.scrollTo({top:0,behavior:'smooth'})}['prev','prev2'].forEach(id=>$(id).onclick=()=>move(-1));['next','next2'].forEach(id=>$(id).onclick=()=>move(1));
+})();
+</script></body></html>
