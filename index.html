@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1510">
+<title>Herbier Obscur — Encyclopédie botanique mondiale</title>
+<meta name="description" content="Herbier Obscur : encyclopédie botanique mondiale alimentée en direct par GBIF. Recherche par nom scientifique, nom commun, genre et famille.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ========== 1. THÈME ========== */
+:root{
+  --bg:#0b1510; --bg2:#101e17; --panel:#142319; --line:#25392d;
+  --text:#e8efe6; --muted:#9db0a2; --accent:#b7d38a; --accent2:#e3c98a; --danger:#e08a6a;
+  --serif:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+  --sans:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;min-height:100vh;-webkit-text-size-adjust:100%}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+button,input,select{font:inherit;color:inherit}
+em.sci,.sci{font-style:italic;font-family:var(--serif)}
+.wrap{max-width:1200px;margin:0 auto;padding:0 18px}
+
+/* ========== 2. NAVIGATION ========== */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:linear-gradient(#0b1510cc,#0b151000)}
+.nav.solid{background:#0b1510ee;backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.brand{font-family:var(--serif);font-size:1.45rem;letter-spacing:.04em;color:var(--text)}
+.brand:hover{text-decoration:none}
+.nav ul{display:flex;gap:18px;list-style:none;font-size:.85rem;letter-spacing:.08em;text-transform:uppercase}
+.nav ul a{color:var(--muted)}
+.nav ul a:hover,.nav ul a.on{color:var(--text);text-decoration:none}
+
+/* ========== 3. ACCUEIL ========== */
+.hero{position:relative;min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;
+  background:radial-gradient(ellipse at 30% 20%,#2c4a2f 0%,transparent 55%),radial-gradient(ellipse at 80% 80%,#1a3322 0%,transparent 60%),#0b1510}
+.hero-img{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1.4s ease}
+.hero-img.on{opacity:.55}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(#0b151099,#0b1510cc 90%)}
+.hero-inner{position:relative;z-index:2;padding:90px 22px 60px;max-width:820px}
+.kicker{font-size:.78rem;letter-spacing:.3em;text-transform:uppercase;color:var(--accent)}
+.hero h1{font-family:var(--serif);font-weight:500;font-size:clamp(3rem,13vw,7rem);line-height:.95;margin:16px 0 20px}
+.hero p{color:#cfdccf;font-size:1.05rem;max-width:560px;margin:0 auto 28px}
+.btn{display:inline-block;border:1px solid var(--accent);background:transparent;color:var(--accent);padding:13px 28px;border-radius:999px;letter-spacing:.14em;text-transform:uppercase;font-size:.8rem;cursor:pointer;transition:.2s}
+.btn:hover{background:var(--accent);color:#0b1510;text-decoration:none}
+.btn.solid{background:var(--accent);color:#0b1510}
+.btn.sm{padding:8px 16px;font-size:.72rem}
+.hero-credit{position:absolute;z-index:2;bottom:12px;left:0;right:0;font-size:.7rem;color:#9db0a2;padding:0 14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;padding:34px 0}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+.stat b{display:block;font-family:var(--serif);font-size:2rem;color:var(--accent2)}
+.stat span{font-size:.8rem;color:var(--muted)}
+.about{padding:10px 0 50px;color:var(--muted);max-width:760px}
+.about h2{font-family:var(--serif);color:var(--text);font-size:1.8rem;margin-bottom:10px}
+.about p{margin-bottom:12px}
+
+/* ========== 4. CATALOGUE ========== */
+.page{padding:84px 0 60px}
+.page h1{font-family:var(--serif);font-weight:500;font-size:clamp(2rem,7vw,3.2rem);margin-bottom:6px}
+.sub{color:var(--muted);margin-bottom:20px}
+.filters{display:grid;gap:10px;grid-template-columns:1fr;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:18px}
+@media(min-width:760px){.filters{grid-template-columns:170px 1fr 220px auto}}
+.filters input,.filters select{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;width:100%;min-height:44px}
+.filters input:focus,.filters select:focus{outline:2px solid var(--accent);outline-offset:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.chip{background:#1c3324;border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:.8rem;display:inline-flex;gap:8px;align-items:center}
+.chip button{background:none;border:0;cursor:pointer;color:var(--muted);font-size:1rem;line-height:1}
+.count{color:var(--muted);font-size:.85rem;margin-bottom:12px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:6px;color:var(--text);transition:.2s}
+.card:hover{border-color:var(--accent);transform:translateY(-2px);text-decoration:none}
+.card .t{font-family:var(--serif);font-style:italic;font-size:1.35rem;line-height:1.2}
+.card .m{font-size:.8rem;color:var(--muted)}
+.tag{display:inline-block;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);border-radius:6px;padding:1px 7px;color:var(--accent2);width:max-content}
+.pager{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;margin-top:22px}
+.pager .jump{display:flex;align-items:center;gap:8px;width:100%;justify-content:center;margin-top:6px;font-size:.85rem;color:var(--muted)}
+.pager .jump input{width:86px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:9px 10px;min-height:40px;text-align:center}
+.pager .jump input:focus{outline:2px solid var(--accent)}
+.pager button{min-width:44px}
+.pager button:disabled{opacity:.35;cursor:default}
+.state{padding:40px 14px;text-align:center;color:var(--muted)}
+.state.err{color:var(--danger)}
+.spin{width:30px;height:30px;border:3px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:sp 1s linear infinite;margin:0 auto 12px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ========== 5. FICHE ========== */
+.fiche{padding-top:70px}
+.fhead{display:grid;gap:18px;padding:18px 0 8px}
+@media(min-width:900px){.fhead{grid-template-columns:1fr 1.3fr 1fr;align-items:center;min-height:68vh}}
+.fname h1{font-family:var(--serif);font-style:italic;font-weight:500;font-size:clamp(2.4rem,9vw,4.6rem);line-height:1}
+.fname .auth{color:var(--muted);margin-top:8px;font-size:.95rem}
+.fname .common{color:var(--accent2);margin-top:12px;font-family:var(--serif);font-size:1.3rem}
+.fphoto{aspect-ratio:4/5;border-radius:18px;overflow:hidden;background:var(--panel);border:1px solid var(--line);position:relative;display:flex;align-items:center;justify-content:center;color:var(--muted);text-align:center;padding:14px}
+.fphoto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;cursor:zoom-in}
+.fphoto .cap{position:absolute;left:0;right:0;bottom:0;background:#0b1510cc;font-size:.68rem;padding:6px 10px;color:#cfdccf;z-index:2}
+.facts{display:grid;gap:10px}
+.fact{border-left:2px solid var(--accent);padding:2px 0 2px 12px}
+.fact small{display:block;font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+.fact span{font-size:1rem}
+.tabs{position:sticky;top:52px;z-index:40;background:#0b1510ee;backdrop-filter:blur(8px);border-bottom:1px solid var(--line);display:flex;gap:4px;overflow-x:auto;padding:8px 0;margin:10px -18px 0;padding-left:18px;padding-right:18px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs a{white-space:nowrap;padding:7px 14px;border-radius:999px;color:var(--muted);font-size:.85rem;border:1px solid transparent}
+.tabs a:hover{color:var(--text);border-color:var(--line);text-decoration:none}
+section.sec{padding:30px 0 6px;scroll-margin-top:110px}
+section.sec h2{font-family:var(--serif);font-weight:500;font-size:1.9rem;margin-bottom:12px;color:var(--accent2)}
+.tbl{width:100%;border-collapse:collapse;font-size:.95rem}
+.tbl td,.tbl th{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.tbl th{width:38%;color:var(--muted);font-weight:500}
+.missing{color:#7d8f82;font-style:italic}
+.src{font-size:.72rem;color:var(--muted);margin-top:8px}
+.list{display:flex;flex-wrap:wrap;gap:8px}
+.pill{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:5px 11px;font-size:.88rem}
+.pill small{color:var(--muted)}
+.gallery{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.gallery button{border:0;padding:0;background:var(--panel);border-radius:10px;overflow:hidden;aspect-ratio:1;cursor:zoom-in}
+.gallery img{width:100%;height:100%;object-fit:cover;display:block}
+.desc{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
+.desc h3{font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+.desc p{white-space:pre-line}
+.warn{border:1px solid #5a3a2b;background:#2a1a14;border-radius:12px;padding:14px;color:#f0c9b8}
+.warn b{color:var(--danger)}
+ul.plain{padding-left:20px;color:var(--muted)}
+ul.plain li{margin-bottom:5px}
+.bar{display:flex;align-items:center;gap:8px;font-size:.85rem;margin:3px 0}
+.bar i{display:block;height:8px;background:var(--accent);border-radius:4px;min-width:2px}
+.lb{position:fixed;inset:0;background:#000d;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px}
+.lb img{max-width:100%;max-height:78vh;border-radius:8px}
+.lb p{color:#cfdccf;font-size:.8rem;margin-top:10px;max-width:90vw;text-align:center}
+.lb button{position:absolute;top:14px;right:16px;background:#1c3324;border:1px solid var(--line);border-radius:999px;width:44px;height:44px;font-size:1.3rem;cursor:pointer}
+footer{border-top:1px solid var(--line);padding:26px 0 40px;color:var(--muted);font-size:.8rem}
+footer p{margin-bottom:6px}
+
+/* ===== v2 : vignettes, médias, blocs complémentaires ===== */
+.card{overflow:hidden}
+.ph{margin:-16px -16px 6px;aspect-ratio:4/3;background:#0e1a13;position:relative;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.75rem}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ph .cr{position:absolute;left:0;right:0;bottom:0;background:#0b1510b3;font-size:.6rem;padding:2px 8px;color:#cfdccf;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cm{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.cm img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.cm figcaption{font-size:.66rem;color:var(--muted);padding:6px 8px;line-height:1.35}
+.sub3{font-size:1rem;margin:16px 0 8px;color:var(--text);font-weight:600}
+ul.tx{padding-left:18px;margin:0}
+ul.tx li{margin-bottom:4px}
+.waiting{color:var(--muted);font-style:italic;font-size:.9rem}
+</style>
+</head>
+<body>
+<header class="nav" id="nav">
+  <a class="brand" href="#/">Herbier Obscur</a>
+  <ul>
+    <li><a href="#/" data-r="home">Accueil</a></li>
+    <li><a href="#/catalogue" data-r="catalogue">Catalogue</a></li>
+    <li><a href="#/securite" data-r="securite">Sécurité</a></li>
+  </ul>
+</header>
+<main id="app"></main>
+<footer>
+  <div class="wrap">
+    <p><b>Herbier Obscur</b> — encyclopédie botanique mondiale.</p>
+    <p>Données taxonomiques et d'observations : <a href="https://www.gbif.org" target="_blank" rel="noopener">GBIF</a> (GBIF Backbone Taxonomy, CC BY 4.0) ; textes complémentaires : Wikipédia (CC BY-SA 4.0) ; images complémentaires : Wikimedia Commons ; photographies : auteurs cités sous chaque image, licence indiquée. Les informations absentes des sources sont signalées « non disponible », jamais inventées.</p>
+    <p>Ces informations sont pédagogiques et ne remplacent pas un avis médical ou un expert.</p>
+  </div>
+</footer>
+
+<!-- ========== 6. NOYAU (fonctions pures, testées sous Node) ========== -->
+<script id="core">
+var GBIF = 'https://api.gbif.org/v1';
+var BACKBONE = 'd7dddbf4-2cf0-4f39-9b2a-bb099caae36c';
+var PLANTAE = 6;
+var PAGE = 24;
+var MAX_RESULTS = 100000; // plafond de sécurité (GBIF peut refuser plus profond : voir le message d'erreur géré dans runSearch)
+var MAX_PAGE = Math.floor(MAX_RESULTS / PAGE);
+
+function esc(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+function stripHtml(s){
+  return String(s == null ? '' : s).replace(/<[^>]*>/g,' ').replace(/&nbsp;/g,' ')
+    .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'")
+    .replace(/[ \t]+/g,' ').trim();
+}
+function parseHash(h){
+  h = (h || '').replace(/^#/, '');
+  var q = ''; var i = h.indexOf('?');
+  if(i >= 0){ q = h.slice(i+1); h = h.slice(0,i); }
+  var parts = h.split('/').filter(Boolean);
+  return { route: parts[0] || 'home', id: parts[1] || null, params: new URLSearchParams(q) };
+}
+function buildSearchUrl(p){
+  var mode = p.mode || 'sci', page = Math.min(MAX_PAGE, Math.max(1, parseInt(p.page || '1', 10) || 1));
+  var u = new URLSearchParams();
+  u.set('datasetKey', BACKBONE);
+  u.set('limit', String(PAGE));
+  u.set('offset', String((page - 1) * PAGE));
+  u.set('highertaxonKey', p.parent || String(PLANTAE));
+  var q = (p.q || '').trim();
+  if(mode === 'genre'){ u.set('rank', 'GENUS'); u.set('status', 'ACCEPTED'); if(q){ u.set('q', q); u.set('qField','SCIENTIFIC'); } }
+  else if(mode === 'famille'){ u.set('rank', 'FAMILY'); u.set('status', 'ACCEPTED'); if(q){ u.set('q', q); u.set('qField','SCIENTIFIC'); } }
+  else {
+    u.set('rank', 'SPECIES'); u.set('status', 'ACCEPTED');
+    if(q){ u.set('q', q); u.set('qField', mode === 'commun' ? 'VERNACULAR' : 'SCIENTIFIC'); }
+  }
+  return GBIF + '/species/search?' + u.toString();
+}
+function countryName(code){
+  try { return new Intl.DisplayNames(['fr'], {type:'region'}).of(code) || code; } catch(e){ return code; }
+}
+function iucnLabel(c){
+  var m = {EX:'Éteinte (EX)',EW:'Éteinte à l\'état sauvage (EW)',CR:'En danger critique (CR)',EN:'En danger (EN)',VU:'Vulnérable (VU)',NT:'Quasi menacée (NT)',LC:'Préoccupation mineure (LC)',DD:'Données insuffisantes (DD)',NE:'Non évaluée (NE)'};
+  return m[c] || c;
+}
+function statusLabel(s){
+  var m = {ACCEPTED:'Accepté',SYNONYM:'Synonyme',HETEROTYPIC_SYNONYM:'Synonyme hétérotypique',HOMOTYPIC_SYNONYM:'Synonyme homotypique',PROPARTE_SYNONYM:'Synonyme partiel',MISAPPLIED:'Nom mal appliqué',DOUBTFUL:'Douteux'};
+  return m[s] || s || '—';
+}
+function rankLabel(r){
+  var m = {KINGDOM:'Règne',PHYLUM:'Embranchement',CLASS:'Classe',ORDER:'Ordre',FAMILY:'Famille',GENUS:'Genre',SPECIES:'Espèce',SUBSPECIES:'Sous-espèce',VARIETY:'Variété',FORM:'Forme'};
+  return m[r] || r || '—';
+}
+function pickPhotos(occResults){
+  var seen = {}, out = [];
+  (occResults || []).forEach(function(o){
+    (o.media || []).forEach(function(m){
+      if(m && m.type === 'StillImage' && m.identifier && /^https?:\/\//.test(m.identifier) && !seen[m.identifier]){
+        seen[m.identifier] = 1;
+        out.push({ url:m.identifier, by:m.creator || m.rightsHolder || o.recordedBy || 'Auteur inconnu', lic:m.license || o.license || '', link:o.references || ('https://www.gbif.org/occurrence/' + o.key) });
+      }
+    });
+  });
+  return out;
+}
+function licLabel(l){
+  if(!l) return 'licence non précisée';
+  var m = l.match(/creativecommons\.org\/(?:licenses|publicdomain)\/([^\/]+)\/([^\/]+)/);
+  if(m) return 'CC ' + m[1].toUpperCase().replace('ZERO','0') + ' ' + m[2];
+  return l.replace(/_/g,' ');
+}
+
+/* ----- v2 : sources complémentaires (Wikipédia, Wikimedia Commons) ----- */
+var RE_DESC = /description|morpholog|caract[èe]re|appareil|biologie|biology|appearance|characteristics|reproduction|cycle/i;
+var RE_ORIGIN = /r[ée]partition|distribution|habitat|origine|aire |introduc|naturalis|[ée]cologie|range|native|ecology|invasi|histoire|history/i;
+var RE_TOX = /toxi|poison|danger|risque|v[ée]n[ée]neu|allerg|sant[ée]|health/i;
+var RE_USE = /usage|utilisation|emploi|cuisine|culinaire|m[ée]dicin|uses|cultivation|culinary|medicinal|ethnobotan|culture/i;
+var RE_SIM = /confusion|ressembl|esp[èe]ces? proche|similaire|look-?alike|similar|distinguish|identification|diff[ée]renc/i;
+var RE_DROP = /^(notes?|r[ée]f[ée]rences?|liens? externes?|bibliographie|voir aussi|annexes?|sources?|external links|further reading|see also|notes and references|references|bibliography)/i;
+
+function clip(t, n){
+  t = String(t == null ? '' : t).trim();
+  if(t.length <= n) return t;
+  var cut = t.slice(0, n);
+  var i = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('.\n'));
+  if(i > n * 0.5) return cut.slice(0, i + 1);
+  return cut.replace(/\s+\S*$/, '') + '…';
+}
+function parseSections(text){
+  text = String(text == null ? '' : text).replace(/\r/g, '');
+  var re = /^={2,}\s*(.+?)\s*={2,}\s*$/gm, m, title = null, last = 0, out = { intro: '', sections: [] };
+  while((m = re.exec(text))){
+    var chunk = text.slice(last, m.index).trim();
+    if(title === null) out.intro = chunk; else out.sections.push({ title: title, text: chunk });
+    title = m[1]; last = re.lastIndex;
+  }
+  var tail = text.slice(last).trim();
+  if(title === null) out.intro = tail; else out.sections.push({ title: title, text: tail });
+  out.sections = out.sections.filter(function(s){ return s.text && !RE_DROP.test(s.title); });
+  return out;
+}
+function findSections(sections, re){ return (sections || []).filter(function(s){ return re.test(s.title); }); }
+function sentences(t){
+  return (String(t == null ? '' : t).replace(/\n+/g, ' ').match(/[^.!?]+[.!?]+(?:\s|$)|[^.!?]+$/g) || [])
+    .map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 12; });
+}
+function toxRoute(text){
+  var RE_T = /toxi|vénéneu|poison|intoxic|mortel|létal|irrit|allergi|dermatite|urticant|nocif|dangereu|venom|lethal|harmful|dermatitis|fatal|troubles? digestif|vomiss|nausée|diarrh|douleur|brûlure|démangeai|gastro|cardiaque|paralys|convulsion|coma\b|décès|nausea|vomit|diarrhea|burn|itch|blister|cardiac|death/i;
+  var seen = {}, tox = sentences(text).filter(function(s){ if(!RE_T.test(s) || seen[s]) return false; seen[s] = 1; return true; });
+  var pick = function(re, n){ return tox.filter(function(s){ return re.test(s); }).slice(0, n || 4); };
+  return {
+    all: tox.slice(0, 12),
+    subst: pick(/alcalo|glycosid|saponin|toxine|toxin|oxalate|substance|compos[ée]|contient|mol[ée]cule|alkaloid|glycoside|compound|latex/i, 3),
+    ingestion: pick(/ingest|ingér|consomm|mang|aval[ée]|mâch|baie|eaten|eating|swallow|consum/i),
+    peau: pick(/peau|cutan|dermat|contact|urtic|skin|rash|sève|sap\b/i),
+    muqueuses: pick(/muqueus|bouche|yeux|œil|oeil|gorge|langue|lèvre|mucous|mouth|eye|throat|tongue|lip/i)
+  };
+}
+function thumbUrl(u){
+  u = String(u || '');
+  if(/inaturalist/i.test(u)) return u.replace(/(\/photos\/\d+\/)(original|large)(\.\w+)/i, '$1medium$3');
+  return u;
+}
+function groupDist(dist){
+  var nat = [], intro = [], other = [], seen = {};
+  (dist || []).forEach(function(x){
+    var label = x.locality || (x.country ? countryName(x.country) : '');
+    if(!label) return;
+    var em = String(x.establishmentMeans || '').toUpperCase();
+    var kind = (em === 'NATIVE' || em === 'ENDEMIC') ? 'nat' : (/INTRODUCED|NATURALI|INVASIVE|ALIEN|CASUAL|ESTABLISHED/.test(em) ? 'intro' : 'other');
+    var k = kind + '|' + label.toLowerCase();
+    if(seen[k]) return; seen[k] = 1;
+    (kind === 'nat' ? nat : kind === 'intro' ? intro : other).push({ label: label, means: x.establishmentMeans || '' });
+  });
+  return { nat: nat, intro: intro, other: other };
+}
+function wikiUrl(lang, title){
+  return 'https://' + lang + '.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1&prop=' +
+    encodeURIComponent('extracts|info|pageprops|pageimages') + '&inprop=url&ppprop=disambiguation&explaintext=1&exsectionformat=wiki&piprop=thumbnail&pithumbsize=800&titles=' + encodeURIComponent(title);
+}
+function parseWiki(json, lang){
+  var pages = json && json.query && json.query.pages; if(!pages) return null;
+  var p = pages[Object.keys(pages)[0]];
+  if(!p || p.missing !== undefined || (p.pageprops && p.pageprops.disambiguation !== undefined) || !p.extract) return null;
+  var s = parseSections(p.extract);
+  return { lang: lang, title: p.title, url: p.fullurl || ('https://' + lang + '.wikipedia.org/wiki/' + encodeURIComponent(p.title)), extract: p.extract, intro: s.intro, sections: s.sections, thumb: p.thumbnail && p.thumbnail.source };
+}
+function commonsUrl(query){
+  return 'https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrnamespace=6&gsrlimit=12&gsrsearch=' +
+    encodeURIComponent(query + ' filetype:bitmap') + '&prop=imageinfo&iiprop=' + encodeURIComponent('url|extmetadata') + '&iiurlwidth=500&iiextmetadatafilter=' + encodeURIComponent('LicenseShortName|Artist|ImageDescription');
+}
+function parseCommons(json, word){
+  var pages = json && json.query && json.query.pages; if(!pages) return [];
+  var w = String(word || '').toLowerCase();
+  return Object.keys(pages).map(function(k){ return pages[k]; })
+    .sort(function(a, b){ return (a.index || 0) - (b.index || 0); })
+    .map(function(p){
+      var ii = p.imageinfo && p.imageinfo[0]; if(!ii) return null;
+      var md = ii.extmetadata || {};
+      var title = String(p.title || '').replace(/^File:/i, '').replace(/\.\w+$/, '').replace(/_/g, ' ');
+      var desc = md.ImageDescription ? stripHtml(md.ImageDescription.value) : '';
+      return { title: title, thumb: ii.thumburl || ii.url, page: ii.descriptionurl || '', lic: md.LicenseShortName ? stripHtml(md.LicenseShortName.value) : '', by: md.Artist ? stripHtml(md.Artist.value) : '', _t: (title + ' ' + desc).toLowerCase() };
+    })
+    .filter(function(x){ return x && x.thumb && /^https?:\/\//.test(x.thumb) && (!w || x._t.indexOf(w) >= 0); })
+    .slice(0, 3);
+}
+</script>
+
+<!-- ========== 7. APPLICATION ========== -->
+<script id="app-js">
+var cache = {};
+var $app = document.getElementById('app');
+var $nav = document.getElementById('nav');
+
+function getJson(url){
+  if(cache[url]) return Promise.resolve(cache[url]);
+  return fetch(url).then(function(r){
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  }).then(function(j){ cache[url] = j; return j; });
+}
+function loading(msg){ return '<div class="state"><div class="spin"></div>' + esc(msg || 'Chargement…') + '</div>'; }
+function errorBox(e, retry){
+  return '<div class="state err">Impossible de charger les données (' + esc(e && e.message) + ').<br>Vérifie ta connexion internet.<br><br><button class="btn sm" onclick="' + retry + '">Réessayer</button></div>';
+}
+function missing(txt){ return '<span class="missing">' + esc(txt || 'Non disponible dans les sources consultées') + '</span>'; }
+
+/* ---------- Routage ---------- */
+function route(){
+  var h = parseHash(location.hash);
+  document.querySelectorAll('.nav a[data-r]').forEach(function(a){ a.classList.toggle('on', a.dataset.r === h.route || (h.route === 'plante' && a.dataset.r === 'catalogue')); });
+  window.scrollTo(0, 0);
+  if(h.route === 'catalogue') return viewCatalogue(h.params);
+  if(h.route === 'plante' && h.id) return viewPlant(h.id);
+  if(h.route === 'securite') return viewSafety();
+  return viewHome();
+}
+window.addEventListener('hashchange', route);
+window.addEventListener('scroll', function(){ $nav.classList.toggle('solid', window.scrollY > 40); });
+
+/* ---------- Accueil ---------- */
+var HERO_NAMES = ['Dryopteris filix-mas','Polypodium vulgare','Matteuccia struthiopteris','Athyrium filix-femina','Osmunda regalis','Blechnum spicant'];
+function viewHome(){
+  $app.innerHTML =
+    '<section class="hero" id="hero"><div class="hero-img" id="heroImg"></div>' +
+    '<div class="hero-inner"><div class="kicker">Encyclopédie botanique mondiale</div>' +
+    '<h1>Herbier<br>Obscur</h1>' +
+    '<p>Explorez les plantes du monde : classification, noms, répartition, conservation et photographies, rassemblés en une seule fiche.</p>' +
+    '<a class="btn solid" href="#/catalogue">Accéder au catalogue</a></div>' +
+    '<div class="hero-credit" id="heroCredit"></div></section>' +
+    '<div class="wrap"><div class="stats" id="stats">' + '<div class="stat"><b>…</b><span>Espèces de plantes acceptées</span></div><div class="stat"><b>…</b><span>Genres</span></div><div class="stat"><b>…</b><span>Familles</span></div>' + '</div>' +
+    '<div class="about"><h2>Une encyclopédie vivante</h2><p>Chaque fiche est construite en direct à partir de référentiels scientifiques publics (GBIF). Quand une donnée n\'existe pas dans les sources, le site l\'indique clairement au lieu de la combler.</p><p>Les plantes toxiques y ont leur place, avec une approche strictement préventive.</p></div></div>';
+  loadStats(); loadHero();
+}
+function countOf(rank){
+  var u = GBIF + '/species/search?datasetKey=' + BACKBONE + '&highertaxonKey=' + PLANTAE + '&rank=' + rank + '&status=ACCEPTED&limit=0';
+  return getJson(u).then(function(j){ return j.count; });
+}
+function loadStats(){
+  Promise.all([countOf('SPECIES'), countOf('GENUS'), countOf('FAMILY')]).then(function(c){
+    var el = document.getElementById('stats'); if(!el) return;
+    var f = function(n){ return Number(n).toLocaleString('fr-FR'); };
+    el.innerHTML = '<div class="stat"><b>' + f(c[0]) + '</b><span>Espèces de plantes acceptées</span></div><div class="stat"><b>' + f(c[1]) + '</b><span>Genres</span></div><div class="stat"><b>' + f(c[2]) + '</b><span>Familles</span></div>';
+  }).catch(function(){
+    var el = document.getElementById('stats'); if(el) el.innerHTML = '';
+  });
+}
+function loadHero(){
+  var name = HERO_NAMES[Math.floor(Math.random() * HERO_NAMES.length)];
+  getJson(GBIF + '/species/match?name=' + encodeURIComponent(name)).then(function(m){
+    if(!m.usageKey) throw new Error('no key');
+    return getJson(GBIF + '/occurrence/search?taxonKey=' + m.usageKey + '&mediaType=StillImage&license=CC0_1_0&license=CC_BY_4_0&limit=30');
+  }).then(function(o){
+    var ph = pickPhotos(o.results);
+    if(!ph.length) return;
+    var p = ph[Math.floor(Math.random() * ph.length)];
+    var img = new Image();
+    img.onload = function(){
+      var el = document.getElementById('heroImg'); if(!el) return;
+      el.style.backgroundImage = 'url("' + p.url.replace(/"/g,'%22') + '")';
+      el.classList.add('on');
+      document.getElementById('heroCredit').innerHTML = 'Photo : ' + esc(p.by) + ' — ' + esc(licLabel(p.lic)) + ' — via <a href="' + esc(p.link) + '" target="_blank" rel="noopener">GBIF</a>';
+    };
+    img.src = p.url;
+  }).catch(function(){ /* le fond dégradé reste en place */ });
+}
+
+/* ---------- Catalogue ---------- */
+var famList = null, famNames = {};
+function loadFamilies(){
+  if(famList) return Promise.resolve(famList);
+  var all = [];
+  function page(off){
+    return getJson(GBIF + '/species/search?datasetKey=' + BACKBONE + '&highertaxonKey=' + PLANTAE + '&rank=FAMILY&status=ACCEPTED&limit=1000&offset=' + off).then(function(j){
+      var rs = j.results || [];
+      rs.forEach(function(r){ all.push({ key: String(r.key), name: r.canonicalName || r.scientificName }); });
+      if(!j.endOfRecords && rs.length) return page(off + 1000);
+    });
+  }
+  return page(0).then(function(){
+    var seen = {};
+    all = all.filter(function(f){ if(seen[f.key]) return false; seen[f.key] = 1; return true; });
+    all.sort(function(a, b){ return a.name.localeCompare(b.name); });
+    all.forEach(function(f){ famNames[f.key] = f.name; });
+    famList = all; return all;
+  });
+}
+function famOptions(list, st){
+  var h = '<option value="">Toutes les familles</option>';
+  var found = false;
+  list.forEach(function(f){ if(f.key === st.parent) found = true; });
+  if(st.parent && !found && st.parentName){ famNames[st.parent] = st.parentName; h += '<option value="' + esc(st.parent) + '">' + esc(st.parentName) + '</option>'; }
+  return h + list.map(function(f){ return '<option value="' + esc(f.key) + '">' + esc(f.name) + '</option>'; }).join('');
+}
+function viewCatalogue(params){
+  var st = { mode: params.get('mode') || 'sci', q: params.get('q') || '', parent: params.get('parent') || '', parentName: params.get('pn') || '', page: params.get('page') || '1' };
+  if(st.parent && st.parentName) famNames[st.parent] = st.parentName;
+  $app.innerHTML =
+    '<div class="wrap page"><h1>Catalogue</h1><p class="sub">Plantes du monde (règne Plantae, taxons acceptés de la taxonomie GBIF).</p>' +
+    '<form class="filters" id="ff" autocomplete="off">' +
+    '<select id="fMode" aria-label="Type de recherche"><option value="sci">Nom scientifique</option><option value="commun">Nom commun</option><option value="genre">Genre</option><option value="famille">Famille</option></select>' +
+    '<input id="fQ" type="search" placeholder="Rechercher…" aria-label="Terme recherché">' +
+    '<select id="fFam" aria-label="Choisir une famille botanique">' + famOptions(famList || [], st) + '</select>' +
+    '<button class="btn solid" type="submit">Chercher</button></form>' +
+    '<div class="chips" id="chips"></div><div class="count" id="count"></div><div id="results">' + loading() + '</div><div class="pager" id="pager"></div></div>';
+  document.getElementById('fMode').value = st.mode;
+  document.getElementById('fQ').value = st.q;
+  document.getElementById('fFam').value = st.parent;
+  loadFamilies().then(function(list){
+    var sel = document.getElementById('fFam'); if(!sel) return;
+    sel.innerHTML = famOptions(list, st);
+    sel.value = st.parent;
+  }).catch(function(){
+    var sel = document.getElementById('fFam'); if(!sel) return;
+    var cur = sel.value;
+    sel.innerHTML = '<option value="">Liste des familles indisponible</option>' + (st.parent ? '<option value="' + esc(st.parent) + '">' + esc(st.parentName || st.parent) + '</option>' : '');
+    sel.value = cur;
+  });
+  var submitSearch = function(){
+    var key = document.getElementById('fFam').value || '';
+    go({ mode: document.getElementById('fMode').value, q: document.getElementById('fQ').value.trim(), parent: key, pn: key ? (famNames[key] || '') : '', page: '1' });
+  };
+  document.getElementById('ff').addEventListener('submit', function(e){ e.preventDefault(); submitSearch(); });
+  document.getElementById('fFam').addEventListener('change', submitSearch);
+  runSearch(st);
+}
+function go(p){
+  var u = new URLSearchParams();
+  Object.keys(p).forEach(function(k){ if(p[k]) u.set(k, p[k]); });
+  var s = u.toString();
+  location.hash = '#/catalogue' + (s ? '?' + s : '');
+}
+function runSearch(st){
+  var res = document.getElementById('results');
+  getJson(buildSearchUrl(st)).then(function(j){
+    if(!document.getElementById('results')) return;
+    var chips = '';
+    if(st.q) chips += '<span class="chip">Recherche : ' + esc(st.q) + '</span>';
+    if(st.parentName) chips += '<span class="chip">Famille : ' + esc(st.parentName) + '</span>';
+    document.getElementById('chips').innerHTML = chips;
+    var total = Number(j.count || 0);
+    document.getElementById('count').textContent = total.toLocaleString('fr-FR') + ' résultat' + (total > 1 ? 's' : '');
+    if(!j.results.length){ res.innerHTML = '<div class="state">Aucun résultat. Essaie un autre terme.</div>'; document.getElementById('pager').innerHTML = ''; return; }
+    var seen = {}, cards = '';
+    j.results.forEach(function(r){
+      if(seen[r.key]) return; seen[r.key] = 1;
+      var title = r.canonicalName || r.scientificName;
+      var common = (r.vernacularNames || []).filter(function(v){ return v.language === 'fra'; })[0] || (r.vernacularNames || [])[0];
+      var href, sub = '';
+      if(r.rank === 'GENUS' || r.rank === 'FAMILY'){
+        var pn = title; href = '#/catalogue?parent=' + r.key + '&pn=' + encodeURIComponent(pn) + '&mode=sci';
+        sub = (r.rank === 'GENUS' ? 'Famille : ' + esc(r.family || '—') : 'Ordre : ' + esc(r.order || '—')) + '<br>' + (r.numDescendants ? Number(r.numDescendants).toLocaleString('fr-FR') + ' taxons inclus' : '') ;
+      } else {
+        href = '#/plante/' + r.key;
+        sub = 'Famille : ' + esc(r.family || '—') + (common ? '<br>' + esc(common.vernacularName || common.vernacularName) : '');
+      }
+      var ph = (r.rank === 'GENUS' || r.rank === 'FAMILY') ? '' : '<div class="ph" data-key="' + esc(r.key) + '"><span>Photo…</span></div>';
+      cards += '<a class="card" href="' + href + '">' + ph + '<span class="tag">' + esc(rankLabel(r.rank)) + '</span><span class="t">' + esc(title) + '</span><span class="m">' + sub + '</span></a>';
+    });
+    res.innerHTML = '<div class="grid">' + cards + '</div>';
+    loadThumbs();
+    var page = Math.min(MAX_PAGE, Math.max(1, parseInt(st.page, 10) || 1)), last = Math.min(MAX_PAGE, Math.max(1, Math.ceil(total / PAGE)));
+    if(total > MAX_RESULTS){
+      document.getElementById('count').innerHTML = total.toLocaleString('fr-FR') + ' résultats · <b>seuls les ' + MAX_RESULTS.toLocaleString('fr-FR') + ' premiers sont consultables</b> (limite de GBIF). Affine avec une famille, un genre ou un mot de recherche pour voir les autres.';
+    }
+    var pg = document.getElementById('pager');
+    pg.innerHTML = '<button class="btn sm" id="pFirst" aria-label="Première page" ' + (page <= 1 ? 'disabled' : '') + '>«</button>' +
+      '<button class="btn sm" id="pPrev" aria-label="Page précédente" ' + (page <= 1 ? 'disabled' : '') + '>←</button>' +
+      '<span>Page ' + page + ' / ' + last.toLocaleString('fr-FR') + '</span>' +
+      '<button class="btn sm" id="pNext" aria-label="Page suivante" ' + (j.endOfRecords || page >= last ? 'disabled' : '') + '>→</button>' +
+      '<button class="btn sm" id="pLast" aria-label="Dernière page" ' + (page >= last ? 'disabled' : '') + '>»</button>' +
+      '<form class="jump" id="pJump"><label for="pNum">Aller à la page</label><input id="pNum" type="number" inputmode="numeric" min="1" max="' + last + '" value="' + page + '"><button class="btn sm" type="submit">Aller</button></form>';
+    var mk = function(n){ return function(){ go({ mode: st.mode, q: st.q, parent: st.parent, pn: st.parentName, page: String(n) }); }; };
+    if(page > 1){ document.getElementById('pPrev').onclick = mk(page - 1); document.getElementById('pFirst').onclick = mk(1); }
+    if(!j.endOfRecords && page < last) document.getElementById('pNext').onclick = mk(page + 1);
+    if(page < last) document.getElementById('pLast').onclick = mk(last);
+    document.getElementById('pJump').addEventListener('submit', function(e){
+      e.preventDefault();
+      var n = parseInt(document.getElementById('pNum').value, 10);
+      if(!n || n < 1) n = 1;
+      if(n > last) n = last;
+      mk(n)();
+    });
+  }).catch(function(e){
+    if(!document.getElementById('results')) return;
+    var pgn = Math.max(1, parseInt(st.page, 10) || 1);
+    var back = function(n){ return function(){ go({ mode: st.mode, q: st.q, parent: st.parent, pn: st.parentName, page: String(n) }); }; };
+    if(pgn > 1 && /HTTP 4/.test(String(e && e.message))){
+      document.getElementById('pager').innerHTML = '';
+      res.innerHTML = '<div class="state err">GBIF refuse d\'afficher la page ' + pgn + ' (' + esc(e.message) + '). Il limite la profondeur des résultats.<br><br><button class="btn sm" id="eBack">Page précédente</button> <button class="btn sm" id="eFirst">Page 1</button><br><br><span class="missing">Affine avec une famille ou un genre pour voir d\'autres plantes.</span></div>';
+      document.getElementById('eBack').onclick = back(pgn - 1);
+      document.getElementById('eFirst').onclick = back(1);
+    } else res.innerHTML = errorBox(e, 'route()');
+  });
+}
+
+/* ---------- Vignettes du catalogue (photo de chaque plante) ---------- */
+var thumbQ = [], thumbActive = 0, thumbIO = null;
+function thumbPump(){
+  while(thumbActive < 4 && thumbQ.length){
+    var job = thumbQ.shift(); thumbActive++;
+    job().then(function(){ thumbActive--; thumbPump(); }, function(){ thumbActive--; thumbPump(); });
+  }
+}
+function thumbJob(el){
+  return function(){
+    var k = el.dataset && el.dataset.key;
+    return getJson(GBIF + '/occurrence/search?taxonKey=' + encodeURIComponent(k) + '&mediaType=StillImage&license=CC0_1_0&license=CC_BY_4_0&license=CC_BY_NC_4_0&limit=5').then(function(o){
+      if(el.isConnected === false) return;
+      var ph = pickPhotos(o.results);
+      if(!ph.length){ el.innerHTML = '<span>Pas de photo</span>'; return; }
+      var p = ph[0];
+      el.innerHTML = '<img loading="lazy" decoding="async" alt="" src="' + esc(thumbUrl(p.url)) + '"><div class="cr">© ' + esc(p.by) + ' · ' + esc(licLabel(p.lic)) + '</div>';
+    }).catch(function(){ if(el.isConnected !== false) el.innerHTML = '<span>Pas de photo</span>'; });
+  };
+}
+function loadThumbs(){
+  var els = document.querySelectorAll('.ph[data-key]');
+  thumbQ = [];
+  if(thumbIO){ try { thumbIO.disconnect(); } catch(e){} thumbIO = null; }
+  var useIO = (typeof window !== 'undefined') && ('IntersectionObserver' in window);
+  if(useIO) thumbIO = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){ thumbIO.unobserve(en.target); thumbQ.push(thumbJob(en.target)); thumbPump(); }
+    });
+  }, { rootMargin: '300px' });
+  Array.prototype.forEach.call(els, function(el){
+    if(useIO) thumbIO.observe(el); else { thumbQ.push(thumbJob(el)); }
+  });
+  if(!useIO) thumbPump();
+}
+
+/* ---------- Fiche ---------- */
+function viewPlant(key){
+  $app.innerHTML = '<div class="wrap fiche">' + loading('Chargement de la fiche…') + '</div>';
+  var P = GBIF + '/species/' + encodeURIComponent(key);
+  Promise.all([
+    getJson(P),
+    getJson(P + '/vernacularNames?limit=200').catch(function(){ return null; }),
+    getJson(P + '/synonyms?limit=100').catch(function(){ return null; }),
+    getJson(P + '/descriptions?limit=50').catch(function(){ return null; }),
+    getJson(P + '/distributions?limit=200').catch(function(){ return null; }),
+    getJson(P + '/references?limit=50').catch(function(){ return null; }),
+    getJson(P + '/iucnRedListCategory').catch(function(){ return null; }),
+    getJson(P + '/media?limit=20').catch(function(){ return null; }),
+    getJson(GBIF + '/occurrence/search?taxonKey=' + encodeURIComponent(key) + '&mediaType=StillImage&limit=40').catch(function(){ return null; }),
+    getJson(GBIF + '/occurrence/search?taxonKey=' + encodeURIComponent(key) + '&limit=0&facet=country&facetLimit=300').catch(function(){ return null; })
+  ]).then(function(d){ renderPlant(d); startExt(d[0]); }).catch(function(e){
+    $app.innerHTML = '<div class="wrap fiche">' + errorBox(e, 'route()') + '</div>';
+  });
+}
+
+/* ---------- Sources complémentaires : chargées après l'affichage de la fiche ---------- */
+function fetchWiki(name){
+  return getJson(wikiUrl('fr', name)).then(function(j){ return parseWiki(j, 'fr'); }).catch(function(){ return null; }).then(function(w){
+    if(w) return w;
+    return getJson(wikiUrl('en', name)).then(function(j){ return parseWiki(j, 'en'); }).catch(function(){ return null; });
+  });
+}
+var MEDIA_QUERIES = [['fleur', ' flower'], ['fruit', ' fruit'], ['graine', ' seed'], ['coupe_fleur', ' flower cross section'], ['coupe_fruit', ' fruit cross section'], ['coupe_graine', ' seed cross section']];
+function fetchCommons(name){
+  var word = String(name).split(' ')[0];
+  return Promise.all(MEDIA_QUERIES.map(function(q){
+    return getJson(commonsUrl(name + q[1])).then(function(j){ return parseCommons(j, word); }).catch(function(){ return []; });
+  })).then(function(res){ var o = {}; MEDIA_QUERIES.forEach(function(q, i){ o[q[0]] = res[i]; }); return o; });
+}
+function startExt(sp){
+  var key = String(sp.key), name = sp.canonicalName || sp.scientificName;
+  var ok = function(){ return window._curKey === key; };
+  fetchWiki(name).then(function(w){ if(!ok()) return; window._ext.wiki = w; paintExt(); });
+  fetchCommons(name).then(function(c){ if(!ok()) return; window._ext.commons = c; paintExt(); }).catch(function(){ if(!ok()) return; window._ext.commons = null; paintExt(); });
+  if(sp.genusKey){
+    getJson(GBIF + '/species/search?datasetKey=' + BACKBONE + '&rank=SPECIES&status=ACCEPTED&limit=13&highertaxonKey=' + encodeURIComponent(sp.genusKey)).then(function(r){
+      if(!ok()) return; window._ext.sibs = (r.results || []).filter(function(x){ return String(x.key) !== key; }).slice(0, 12); paintExt();
+    }).catch(function(){ if(!ok()) return; window._ext.sibs = null; paintExt(); });
+  } else window._ext.sibs = null;
+}
+
+/* ---------- Blocs de la fiche alimentés par les sources complémentaires ---------- */
+function waiting(){ return '<p class="waiting">Chargement des informations complémentaires…</p>'; }
+function extNote(w){
+  return w ? '<p class="src">Source : <a target="_blank" rel="noopener" href="' + esc(w.url) + '">Wikipédia (' + esc(w.lang) + ') — « ' + esc(w.title) + ' »</a>, texte sous licence CC BY-SA 4.0.</p>' : '';
+}
+function textBlock(title, text){ return '<div class="desc"><h3>' + esc(title) + '</h3><p>' + esc(text) + '</p></div>'; }
+function descHtml(B, E){
+  var w = E.wiki, h = '';
+  if(w){
+    var intro = clip(w.intro, 1500);
+    if(intro) h += textBlock('Présentation · Wikipédia (' + w.lang + ')', intro);
+    findSections(w.sections, RE_DESC).slice(0, 3).forEach(function(s){ h += textBlock(s.title + ' · Wikipédia', clip(s.text, 1800)); });
+    h += extNote(w);
+  }
+  B.dd.slice(0, 6).forEach(function(x){
+    h += '<div class="desc"><h3>' + esc(x.type || 'Description') + (x.language ? ' · ' + esc(x.language) : '') + '</h3><p>' + esc(stripHtml(x.description)) + '</p><p class="src">Source : ' + esc(x.source || x.creator || 'GBIF') + (x.license ? ' · ' + esc(licLabel(x.license)) : '') + '</p></div>';
+  });
+  if(w === undefined) h += waiting();
+  else if(!h) h = '<p>' + missing('Aucune description disponible dans les sources consultées (GBIF, Wikipédia)') + '</p>';
+  return h;
+}
+function originHtml(B, E){
+  var g = groupDist(B.dist), h = '';
+  var pills = function(a){ return '<div class="list">' + a.slice(0, 80).map(function(x){ return '<span class="pill">' + esc(x.label) + (x.means ? ' <small>' + esc(String(x.means).toLowerCase()) + '</small>' : '') + '</span>'; }).join('') + '</div>'; };
+  h += '<h3 class="sub3">Pays et zones d\'origine</h3>' + (g.nat.length ? pills(g.nat) : '<p>' + missing('Origine non documentée dans GBIF pour ce taxon') + '</p>');
+  h += '<h3 class="sub3">Pays où la plante a été introduite ou naturalisée</h3>' + (g.intro.length ? pills(g.intro) : '<p>' + missing('Aucune introduction documentée dans GBIF pour ce taxon') + '</p>');
+  if(g.other.length) h += '<h3 class="sub3">Autres zones signalées (statut non précisé)</h3>' + pills(g.other);
+  h += '<p class="src">Source : zones de répartition publiées dans GBIF (jeux de données contributeurs).</p>';
+  var w = E.wiki;
+  if(w){
+    var sec = findSections(w.sections, RE_ORIGIN).slice(0, 3);
+    sec.forEach(function(s){ h += textBlock(s.title + ' · Wikipédia', clip(s.text, 1500)); });
+    if(sec.length) h += extNote(w);
+  } else if(w === undefined) h += waiting();
+  var cf = B.cf || [];
+  if(cf.length){
+    var mx = cf[0].count;
+    h += '<h3 class="sub3">Pays d\'observation (occurrences GBIF)</h3>' + cf.slice(0, 15).map(function(c){ return '<div class="bar"><span style="width:130px;flex:none">' + esc(countryName(c.name)) + '</span><i style="width:' + Math.max(2, Math.round(c.count / mx * 55)) + '%"></i><small>' + Number(c.count).toLocaleString('fr-FR') + '</small></div>'; }).join('') +
+         '<p class="src">' + cf.length + ' pays avec observations · une observation indique où l\'espèce a été vue, pas forcément son aire d\'origine.</p>';
+  }
+  return h;
+}
+function toxHtml(B, E){
+  var w = E.wiki;
+  var warn = '<div class="warn"><b>Information préventive.</b> L\'absence d\'information ne signifie pas que la plante est sans danger. En cas de doute : ne rien manger ni goûter, tenir hors de portée des enfants et des animaux, et contacter un centre antipoison ou les urgences après une ingestion ou un contact suspect.</div>';
+  if(w === undefined) return warn + waiting();
+  var tx = w ? toxRoute(w.extract) : { all: [], subst: [], ingestion: [], peau: [], muqueuses: [] };
+  var li = function(a){ return a.length ? '<ul class="tx">' + a.map(function(s){ return '<li>' + esc(s) + '</li>'; }).join('') + '</ul>' : missing('Non documenté dans les sources consultées'); };
+  var level = tx.all.length
+    ? 'Des mentions liées à la toxicité figurent dans la source (voir ci-dessous). Aucun « taux » chiffré normalisé n\'existe pour les plantes : il n\'est donc pas calculé ici.'
+    : missing('Non évalué dans les sources consultées. Aucun taux chiffré n\'est inventé.');
+  var h = warn + '<table class="tbl" style="margin-top:10px">' +
+    '<tr><th>Niveau de toxicité</th><td>' + level + '</td></tr>' +
+    '<tr><th>Substances mentionnées</th><td>' + li(tx.subst) + '</td></tr>' +
+    '<tr><th>En cas d\'ingestion</th><td>' + li(tx.ingestion) + '</td></tr>' +
+    '<tr><th>Contact avec la peau</th><td>' + li(tx.peau) + '</td></tr>' +
+    '<tr><th>Muqueuses (bouche, yeux, gorge)</th><td>' + li(tx.muqueuses) + '</td></tr></table>';
+  if(w){
+    findSections(w.sections, RE_TOX).slice(0, 2).forEach(function(s){ h += textBlock(s.title + ' · Wikipédia', clip(s.text, 1500)); });
+    var use = findSections(w.sections, RE_USE).slice(0, 2);
+    if(use.length){ h += '<h3 class="sub3">Utilisations documentées</h3>'; use.forEach(function(s){ h += textBlock(s.title + ' · Wikipédia', clip(s.text, 1000)); }); }
+    h += '<p class="src">Les phrases ci-dessus sont extraites du texte de Wikipédia et classées automatiquement par mots-clés : à vérifier auprès d\'une source médicale.</p>' + extNote(w);
+  } else h += '<p class="src">Aucun article Wikipédia trouvé pour ce nom scientifique.</p>';
+  return h;
+}
+var MEDIA_LABELS = [['fleur', 'Fleur'], ['fruit', 'Fruit'], ['graine', 'Graine'], ['coupe_fleur', 'Coupe de la fleur'], ['coupe_fruit', 'Coupe du fruit'], ['coupe_graine', 'Coupe de la graine']];
+function mediaHtml(c){
+  if(c === undefined) return waiting();
+  if(c === null) return '<p>' + missing('Images indisponibles') + '</p>';
+  var h = '<p class="src" style="margin:0 0 6px">Images trouvées par recherche automatique sur Wikimedia Commons. Vérifie que chaque image correspond bien à la plante (le titre du fichier est indiqué).</p>';
+  MEDIA_LABELS.forEach(function(m){
+    var items = c[m[0]] || [];
+    h += '<h3 class="sub3">' + m[1] + '</h3>';
+    h += items.length ? '<div class="gallery">' + items.map(function(x){
+      return '<figure class="cm"><a target="_blank" rel="noopener" href="' + esc(x.page) + '"><img loading="lazy" alt="' + esc(x.title) + '" src="' + esc(x.thumb) + '"></a><figcaption>' + esc(clip(x.title, 70)) + '<br>' + esc(x.by ? clip(x.by, 40) : 'auteur inconnu') + ' · ' + esc(x.lic || 'licence non précisée') + '</figcaption></figure>';
+    }).join('') + '</div>' : '<p>' + missing('Aucune image trouvée sur Wikimedia Commons') + '</p>';
+  });
+  return h;
+}
+function simHtml(B, E){
+  var w = E.wiki, h = '', sp = B.sp;
+  if(w){
+    var s = findSections(w.sections, RE_SIM).slice(0, 2);
+    s.forEach(function(x){ h += textBlock(x.title + ' · Wikipédia', clip(x.text, 1200)); });
+    if(s.length) h += extNote(w);
+    else h += '<p>' + missing('Aucune mention de plantes ressemblantes ou de confusions possibles dans l\'article consulté') + '</p>';
+  } else if(w === undefined) h += waiting();
+  else h += '<p>' + missing('Aucune information sur les ressemblances dans les sources consultées') + '</p>';
+  var sb = E.sibs;
+  if(sb === undefined) h += waiting();
+  else if(sb && sb.length){
+    h += '<h3 class="sub3">Autres espèces du genre ' + esc(sp.genus || '') + '</h3><p class="src" style="margin:0 0 6px">Proximité taxonomique (même genre) : cela ne prouve pas une ressemblance visuelle.</p><div class="list">' +
+      sb.map(function(x){ return '<a class="pill" href="#/plante/' + esc(x.key) + '"><span class="sci">' + esc(x.canonicalName || x.scientificName) + '</span></a>'; }).join('') + '</div>';
+  }
+  return h;
+}
+function refsHtml(B, E){
+  var sp = B.sp, rl = (B.refs || []).filter(function(r){ return r.citation || r.link; });
+  var w = E.wiki;
+  return '<ul class="plain">' + (sp.publishedIn ? '<li>' + esc(sp.publishedIn) + ' (publication d\'origine)</li>' : '') +
+    rl.slice(0, 30).map(function(r){ return '<li>' + esc(r.citation || '') + (r.link ? ' <a target="_blank" rel="noopener" href="' + esc(r.link) + '">lien</a>' : '') + '</li>'; }).join('') +
+    '<li>GBIF Secretariat. GBIF Backbone Taxonomy. Licence CC BY 4.0. <a target="_blank" rel="noopener" href="https://www.gbif.org/species/' + esc(sp.key) + '">gbif.org/species/' + esc(sp.key) + '</a></li>' +
+    (w ? '<li>Wikipédia (' + esc(w.lang) + '), « ' + esc(w.title) + ' », CC BY-SA 4.0. <a target="_blank" rel="noopener" href="' + esc(w.url) + '">lien</a></li>' : '') +
+    '<li>Images complémentaires : Wikimedia Commons, auteurs et licences indiqués sous chaque image.</li></ul>';
+}
+function setX(id, html){ var el = document.getElementById(id); if(el) el.innerHTML = html; }
+function paintExt(){
+  var B = window._base, E = window._ext;
+  if(!B || !E || window._curKey !== String(B.sp.key)) return;
+  setX('x-desc', descHtml(B, E));
+  setX('x-origin', originHtml(B, E));
+  setX('x-tox', toxHtml(B, E));
+  setX('x-flor', mediaHtml(E.commons));
+  setX('x-sim', simHtml(B, E));
+  setX('x-ref', refsHtml(B, E));
+}
+
+function renderPlant(d){
+  var sp = d[0], vern = (d[1] && d[1].results) || [], syn = (d[2] && d[2].results) || [], desc = (d[3] && d[3].results) || [],
+      dist = (d[4] && d[4].results) || [], refs = (d[5] && d[5].results) || [], iucn = d[6], med = (d[7] && d[7].results) || [], occ = d[8], fac = d[9];
+  var title = sp.canonicalName || sp.scientificName;
+  document.title = title + ' — Herbier Obscur';
+
+  var seenV = {}, vl = [];
+  vern.forEach(function(v){ var n = (v.vernacularName || '').trim(); var k = n.toLowerCase() + '|' + (v.language || ''); if(n && !seenV[k]){ seenV[k] = 1; vl.push(v); } });
+  vl.sort(function(a,b){ return (b.language === 'fra') - (a.language === 'fra') || (b.language === 'eng') - (a.language === 'eng'); });
+  var fr = vl.filter(function(v){ return v.language === 'fra'; })[0];
+
+  var photos = [];
+  med.forEach(function(m){ if(m.type === 'StillImage' && m.identifier) photos.push({ url:m.identifier, by:m.creator || m.rightsHolder || 'Auteur inconnu', lic:m.license || '', link:m.references || m.source || '' }); });
+  photos = photos.concat(pickPhotos(occ && occ.results));
+  var seenP = {}; photos = photos.filter(function(p){ if(seenP[p.url]) return false; seenP[p.url] = 1; return true; });
+  window._photos = photos;
+
+  window._curKey = String(sp.key);
+  window._base = { sp: sp, title: title, dd: desc.filter(function(x){ return stripHtml(x.description); }), dist: dist, cf: (fac && fac.facets && fac.facets[0] && fac.facets[0].counts) || [], refs: refs, iucn: iucn };
+  window._ext = { wiki: undefined, commons: undefined, sibs: undefined };
+
+  var fact = function(label, val){ return '<div class="fact"><small>' + esc(label) + '</small><span>' + (val ? val : missing('non disponible')) + '</span></div>'; };
+  var famLink = sp.familyKey ? '<a href="#/catalogue?parent=' + sp.familyKey + '&pn=' + encodeURIComponent(sp.family) + '">' + esc(sp.family) + '</a>' : esc(sp.family || '');
+  var tab = function(id, label){ return '<a href="#' + id + '" onclick="return jump(event,\'' + id + '\')">' + label + '</a>'; };
+
+  var h = '<div class="wrap fiche">';
+  h += '<p style="margin-top:8px"><a href="#/catalogue">← Catalogue</a></p>';
+  h += '<div class="fhead"><div class="fname"><span class="tag">' + esc(rankLabel(sp.rank)) + ' · ' + esc(statusLabel(sp.taxonomicStatus)) + '</span><h1>' + esc(title) + '</h1>' +
+       '<div class="auth">' + (sp.authorship ? esc(sp.authorship) : missing('auteur non disponible')) + '</div>' +
+       (fr ? '<div class="common">' + esc(fr.vernacularName) + '</div>' : (sp.vernacularName ? '<div class="common">' + esc(sp.vernacularName) + '</div>' : '')) + '</div>';
+  h += '<div class="fphoto">' + (photos.length ? '<img src="' + esc(photos[0].url) + '" alt="' + esc(title) + '" onclick="openLb(0)"><div class="cap">' + esc(photos[0].by) + ' · ' + esc(licLabel(photos[0].lic)) + '</div>' : 'Aucune photographie disponible dans les sources consultées.') + '</div>';
+  h += '<div class="facts">' + fact('Famille', famLink) + fact('Genre', sp.genusKey ? '<a href="#/catalogue?parent=' + sp.genusKey + '&pn=' + encodeURIComponent(sp.genus) + '">' + esc(sp.genus) + '</a>' : esc(sp.genus || '')) +
+       fact('Ordre', esc(sp.order || '')) + fact('Statut IUCN', iucn && iucn.category ? esc(iucnLabel(iucn.category)) : '') + '</div></div>';
+
+  h += '<nav class="tabs">' + tab('s-desc', 'Description') + tab('s-origine', 'Origine') + tab('s-tox', 'Toxicité') + tab('s-flor', 'Fleur · fruit · graine') + tab('s-photo', 'Photos') + tab('s-syn', 'Synonymes') + tab('s-sim', 'Ressemblances') + tab('s-class', 'Classification') + tab('s-noms', 'Noms') + tab('s-cons', 'Conservation') + tab('s-ref', 'Références') + '</nav>';
+
+  h += '<section class="sec" id="s-desc"><h2>Description</h2><div id="x-desc">' + waiting() + '</div></section>';
+  h += '<section class="sec" id="s-origine"><h2>Origine et introduction</h2><div id="x-origin">' + waiting() + '</div></section>';
+  h += '<section class="sec" id="s-tox"><h2>Toxicité et conséquences</h2><div id="x-tox">' + waiting() + '</div></section>';
+  h += '<section class="sec" id="s-flor"><h2>Fleur, fruit, graine et coupes</h2><div id="x-flor">' + waiting() + '</div></section>';
+
+  h += '<section class="sec" id="s-photo"><h2>Galerie photographique</h2>';
+  h += photos.length ? '<div class="gallery">' + photos.slice(0, 30).map(function(p, i){ return '<button onclick="openLb(' + i + ')" aria-label="Agrandir la photo ' + (i + 1) + '"><img loading="lazy" src="' + esc(p.url) + '" alt="' + esc(title) + '"></button>'; }).join('') + '</div><p class="src">Photographies issues d\'observations publiées sur GBIF. Chaque auteur et licence sont indiqués à l\'agrandissement.</p>' : '<p>' + missing('Aucune photographie') + '</p>';
+  h += '</section>';
+
+  h += '<section class="sec" id="s-syn"><h2>Synonymes scientifiques</h2>';
+  h += syn.length ? '<div class="list">' + syn.map(function(s){ return '<a class="pill" href="#/plante/' + s.key + '"><span class="sci">' + esc(s.scientificName) + '</span></a>'; }).join('') + '</div>' : '<p>' + missing('Aucun synonyme enregistré dans GBIF') + '</p>';
+  h += '<p class="src">Source : GBIF Backbone Taxonomy.</p></section>';
+
+  h += '<section class="sec" id="s-sim"><h2>Ressemblances</h2><div id="x-sim">' + waiting() + '</div></section>';
+
+  var cl = [['Règne',sp.kingdom],['Embranchement',sp.phylum],['Classe',sp.class],['Ordre',sp.order],['Famille',sp.family],['Genre',sp.genus],['Espèce',sp.species || (sp.rank === 'SPECIES' ? title : '')]];
+  h += '<section class="sec" id="s-class"><h2>Classification scientifique</h2><table class="tbl">' +
+       cl.map(function(r){ return '<tr><th>' + r[0] + '</th><td>' + (r[1] ? '<span class="sci">' + esc(r[1]) + '</span>' : missing()) + '</td></tr>'; }).join('') +
+       '<tr><th>Nom scientifique complet</th><td>' + esc(sp.scientificName || '') + '</td></tr>' +
+       '<tr><th>Publication d\'origine</th><td>' + (sp.publishedIn ? esc(sp.publishedIn) : missing()) + '</td></tr>' +
+       '<tr><th>Statut taxonomique</th><td>' + esc(statusLabel(sp.taxonomicStatus)) + (sp.accepted && sp.acceptedKey ? ' → <a href="#/plante/' + sp.acceptedKey + '"><span class="sci">' + esc(sp.accepted) + '</span></a>' : '') + '</td></tr>' +
+       '</table><p class="src">Source : GBIF Backbone Taxonomy · <a target="_blank" rel="noopener" href="https://www.gbif.org/species/' + esc(sp.key) + '">fiche GBIF</a></p></section>';
+
+  h += '<section class="sec" id="s-noms"><h2>Noms communs et vernaculaires</h2>';
+  h += vl.length ? '<div class="list">' + vl.slice(0, 60).map(function(v){ return '<span class="pill">' + esc(v.vernacularName) + ' <small>' + esc(v.language || '') + '</small></span>'; }).join('') + '</div>' + (vl.length > 60 ? '<p class="src">' + (vl.length - 60) + ' autres noms non affichés.</p>' : '') : '<p>' + missing() + '</p>';
+  h += '<p class="src">Source : GBIF (noms vernaculaires publiés par les jeux de données contributeurs).</p></section>';
+
+  h += '<section class="sec" id="s-cons"><h2>Statut de conservation</h2>';
+  h += iucn && iucn.category ? '<table class="tbl"><tr><th>Catégorie Liste rouge UICN</th><td><b>' + esc(iucnLabel(iucn.category)) + '</b></td></tr>' + (iucn.scientificName ? '<tr><th>Nom évalué</th><td><span class="sci">' + esc(iucn.scientificName) + '</span></td></tr>' : '') + (iucn.taxonomicStatus ? '<tr><th>Correspondance</th><td>' + esc(statusLabel(iucn.taxonomicStatus)) + '</td></tr>' : '') + '</table><p class="src">Source : Liste rouge de l\'UICN via GBIF.</p>' : '<p>' + missing('Pas d\'évaluation UICN trouvée pour ce taxon') + '</p>';
+  h += '</section>';
+
+  h += '<section class="sec" id="s-ref"><h2>Références</h2><div id="x-ref"></div></section>';
+  h += '<div style="height:40px"></div></div>';
+  $app.innerHTML = h;
+  setX('x-ref', refsHtml(window._base, window._ext));
+}
+function jump(ev, id){
+  ev.preventDefault();
+  var el = document.getElementById(id);
+  if(el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+  return false;
+}
+function openLb(i){
+  var p = (window._photos || [])[i]; if(!p) return;
+  var d = document.createElement('div'); d.className = 'lb';
+  d.innerHTML = '<button aria-label="Fermer">×</button><img src="' + esc(p.url) + '" alt=""><p>' + esc(p.by) + ' · ' + esc(licLabel(p.lic)) + (p.link ? ' · <a target="_blank" rel="noopener" href="' + esc(p.link) + '">source</a>' : '') + '</p>';
+  d.addEventListener('click', function(e){ if(e.target === d || e.target.tagName === 'BUTTON') d.remove(); });
+  document.body.appendChild(d);
+}
+
+/* ---------- Sécurité ---------- */
+function viewSafety(){
+  $app.innerHTML = '<div class="wrap page"><h1>Plantes dangereuses</h1><p class="sub">Prévention et information, sans manipulation.</p>' +
+    '<div class="warn"><b>Principe :</b> certaines plantes contiennent des substances toxiques ou irritantes. Ces informations servent à reconnaître le danger et à s\'en protéger, jamais à expérimenter.</div>' +
+    '<section class="sec"><h2>Règles générales</h2><ul class="plain"><li>Ne jamais consommer une plante dont l\'identification n\'est pas certaine.</li><li>Tenir les plantes d\'intérieur et de jardin hors de portée des jeunes enfants et des animaux.</li><li>Porter des gants pour manipuler des plantes irritantes ou inconnues, et se laver les mains ensuite.</li><li>Ne pas brûler de plantes inconnues.</li></ul></section>' +
+    '<section class="sec"><h2>En cas d\'exposition</h2><ul class="plain"><li>Retirer les restes de plante de la bouche ; ne pas faire vomir sauf avis médical.</li><li>Rincer abondamment à l\'eau en cas de contact avec la peau ou les yeux.</li><li>Contacter immédiatement un centre antipoison ou les urgences de votre pays, en précisant la plante, la quantité et l\'heure.</li><li>Garder un échantillon ou une photo de la plante pour l\'identification.</li></ul></section>' +
+    '<section class="sec"><h2>Données par plante</h2><p style="color:var(--muted)">Les substances, parties concernées et symptômes propres à chaque espèce proviennent uniquement de sources citées (Wikipédia, GBIF) et sont extraits automatiquement : à vérifier auprès d\'une source médicale. Sinon, la fiche affiche « non documenté ».</p></section></div>';
+}
+
+route();
+</script>
+</body>
+</html>
